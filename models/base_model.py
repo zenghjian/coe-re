@@ -135,6 +135,9 @@ class BaseModel:
             dataloader (torch.utils.data.DataLoader): Validation dataloader.
             tb_logger (tensorboard logger): Tensorboard logger.
             update (bool): update best metric and best model. Default True
+            
+        Returns:
+            metrics_result (dict): Dictionary with validation metrics.
         """
         self.eval()
 
@@ -232,6 +235,9 @@ class BaseModel:
 
         # train mode
         self.train()
+        
+        # Return metrics for wandb logging
+        return metrics_result
 
     def validate_single(self, data, timer):
         raise NotImplementedError

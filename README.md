@@ -82,3 +82,103 @@ There were two issues with the partial shape matching experiments on the SHREC'1
 The implementation of DiffusionNet is based on [the official implementation](https://github.com/nmwsharp/diffusion-net).
 
 The framework implementation is adapted from [Unsupervised Deep Multi Shape Matching](https://github.com/dongliangcao/Unsupervised-Deep-Multi-Shape-Matching).
+
+# Weights & Biases Integration
+
+This project now includes Weights & Biases (wandb) integration for experiment tracking, metrics visualization, and model checkpointing.
+
+## Features
+
+- Automatic logging of training losses
+- Validation metrics tracking
+- Checkpoint saving and versioning
+- Experiment organization with projects, tags, and run names
+- Hyperparameter tracking and comparison
+
+## Setup
+
+1. Install the wandb package (already added to requirements.txt):
+```bash
+pip install wandb
+```
+
+2. Sign up for a wandb account at [wandb.ai](https://wandb.ai) if you don't have one
+
+3. Log in to wandb from the command line:
+```bash
+wandb login
+```
+
+## Usage
+
+### Enabling wandb in Config Files
+
+Add a `wandb` section to your configuration YAML files to enable wandb logging:
+
+```yaml
+# Enable wandb logging
+wandb:
+  use_wandb: true
+  project: "spectral-shape-matching"  # Your project name
+  entity: null  # Optional: your wandb username or team name
+  id: null  # Optional: for resuming runs
+  resume: false  # Optional: resume wandb logging
+  tags: ["faust", "training"]  # Optional: tags for the run
+```
+
+See `options/train/wandb_config_example.yaml` for a complete example.
+
+### Logged Metrics
+
+The following metrics are automatically logged:
+
+- **Training Metrics**:
+  - All loss terms (total loss, regularization losses, etc.)
+  - Learning rates
+  - Training time metrics
+  
+- **Validation Metrics**:
+  - Average geodesic error
+  - AUC of the PCK curve
+  - Other validation metrics as defined in the model
+
+- **Testing Metrics**:
+  - Same metrics as validation, but tagged with test dataset name
+
+### Model Checkpoints
+
+The integration automatically saves model checkpoints to wandb when they are saved locally. This allows for easy tracking of model versions and their corresponding metrics.
+
+### Visualization
+
+In the wandb UI, you can:
+- Compare runs with different hyperparameters
+- Visualize loss curves and validation metrics
+- Track system resource usage
+- View model architecture and hyperparameters
+
+## Disabling wandb
+
+To disable wandb logging, either:
+
+1. Remove the `wandb` section from your config file, or
+2. Set `use_wandb: false` in the `wandb` section
+
+## Offline Mode
+
+If you want to log metrics without an internet connection:
+
+```bash
+wandb offline
+```
+
+Later, when you have internet access, you can sync your runs:
+
+```bash
+wandb sync [WANDB_DIR]
+```
+
+## Additional Resources
+
+- [Weights & Biases Documentation](https://docs.wandb.ai/)
+- [W&B Python SDK Reference](https://docs.wandb.ai/ref/python)

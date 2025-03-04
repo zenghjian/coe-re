@@ -6,6 +6,15 @@ num_gpu: auto
 manual_seed: 1234
 attention: true
 
+# wandb configuration
+wandb:
+  use_wandb: true
+  project: "coe_fmap"
+  entity: zenghuajian97 # your wandb username or team name (optional)
+  id: null # run id for resuming (optional)
+  resume: false # resume wandb logging (optional)
+  tags: ["coe_scape", "training"] # tags for the run (optional)
+
 # path
 path:
   resume_state: ~
@@ -59,10 +68,11 @@ train:
     feature_extractor:
       type: Adam
       lr: 1.0e-3
+      amsgrad: true
   schedulers:
     feature_extractor:
       type: CosineAnnealingLR
-      eta_min: 2.0e-4
+      eta_min: 1.0e-3
       T_max: 50
   losses:
     consistent_loss:

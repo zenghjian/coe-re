@@ -11,7 +11,7 @@ from datasets.data_sampler import EnlargedSampler
 
 from models import build_model
 from utils import (AvgTimer, MessageLogger, get_env_info, get_root_logger,
-                   init_tb_logger)
+                   init_tb_logger, init_wandb_logger)
 from utils.options import dict2str, parse_options
 
 
@@ -81,8 +81,10 @@ def train_pipeline(root_path):
     logger = get_root_logger(log_file=log_file)
     logger.info(get_env_info())
     logger.info(dict2str(opt))
-    # initialize tensorboard logger
+    
+    # initialize tensorboard logger and wandb logger
     tb_logger = init_tb_loggers(opt)
+    wandb_logger = init_wandb_logger(opt)
 
     # create train and validation dataloaders
     result = create_train_val_dataloader(opt, logger)
@@ -93,7 +95,7 @@ def train_pipeline(root_path):
     model = build_model(opt)
 
     # create message logger (formatted outputs)
-    msg_logger = MessageLogger(opt, model.curr_iter, tb_logger)
+    msg_logger = MessageLogger(opt, model.curr_iter, tb_logger, wandb_logger)
 
     # training
     logger.info(f'Start training from epoch: {model.curr_epoch}, iter: {model.curr_iter}')
@@ -133,12 +135,21 @@ def train_pipeline(root_path):
                 if model.curr_iter % opt['logger']['save_checkpoint_freq'] == 0:
                     logger.info('Saving models and training states.')
                     model.save_model(net_only=False, best=False)
+                    
+                    # Log checkpoint to wandb
+                    if wandb_logger is not None:
+                        checkpoint_path = osp.join(opt['path']['models'], f'{model.curr_iter}.pth')
+                        wandb_logger.log_checkpoint(checkpoint_path, step=model.curr_iter)
 
                 # validation
                 if opt.get('val') is not None and (model.curr_iter % opt['val']['val_freq'] == 0):
                     logger.info('Start validation.')
                     torch.cuda.empty_cache()
-                    model.validation(val_loader, tb_logger)
+                    val_metrics = model.validation(val_loader, tb_logger)
+                    
+                    # Log validation metrics to wandb
+                    if wandb_logger is not None and val_metrics:
+                        wandb_logger.log_validation_metrics(val_metrics, step=model.curr_iter)
 
                 data_timer.start()
                 iter_timer.start()
@@ -152,18 +163,27 @@ def train_pipeline(root_path):
         logger.info('Keyboard interrupt. Save model and exit...')
         model.save_model(net_only=False, best=False)
         model.save_model(net_only=True, best=True)
+        if wandb_logger is not None:
+            wandb_logger.close()
         sys.exit(0)
 
     consumed_time = str(datetime.timedelta(seconds=int(time.time() - start_time)))
     logger.info(f'End of training. Time consumed: {consumed_time}')
     logger.info(f'Last Validation.')
     if opt.get('val') is not None:
-        model.validation(val_loader, tb_logger)
+        val_metrics = model.validation(val_loader, tb_logger)
+        # Log final validation metrics to wandb
+        if wandb_logger is not None and val_metrics:
+            wandb_logger.log_validation_metrics(val_metrics, step=model.curr_iter)
+            
     logger.info('Save the best model.')
     model.save_model(net_only=True, best=True)  # save the best model
-
+    
+    # Close loggers
     if tb_logger:
         tb_logger.close()
+    if wandb_logger:
+        wandb_logger.close()
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ import logging
 import time
 
 from .dist_util import get_dist_info, master_only
+from .wandb_logger import WandbLogger
 
 # initialized logger
 initialized_logger = {}
@@ -71,13 +72,15 @@ class MessageLogger:
 
         start_iter (int, optional): Start iteration number. Default 1.
         tb_logger (SummaryWriter, optional): Tensorboard logger. Default None.
+        wandb_logger (WandbLogger, optional): Wandb logger. Default None.
     """
 
-    def __init__(self, opt, start_iter=1, tb_logger=None):
+    def __init__(self, opt, start_iter=1, tb_logger=None, wandb_logger=None):
         self.exp_name = opt['name']
         self.start_iter = start_iter
         self.max_iters = opt['train']['total_iter']
         self.tb_logger = tb_logger
+        self.wandb_logger = wandb_logger
         self.start_time = time.time()
         self.logger = get_root_logger()
 
@@ -137,6 +140,14 @@ class MessageLogger:
                 else:
                     self.tb_logger.add_scalar(k, v, current_iter)
 
+        # Log to wandb
+        if self.wandb_logger:
+            log_items = {'epoch': epoch, 'iter': current_iter}
+            log_items.update({f'lr_{i}': lr for i, lr in enumerate(lrs)})
+            log_items.update({f'time/iter': iter_time, 'time/data': data_time})
+            log_items.update(log_dict)
+            self.wandb_logger.log_metrics(log_items, step=current_iter)
+
         # print message
         self.logger.info(message)
 
@@ -146,6 +157,22 @@ def init_tb_logger(log_dir):
     from torch.utils.tensorboard import SummaryWriter
     tb_logger = SummaryWriter(log_dir=log_dir)
     return tb_logger
+
+
+@master_only
+def init_wandb_logger(opt):
+    """Initialize wandb logger.
+    
+    Args:
+        opt (dict): Config dict.
+        
+    Returns:
+        wandb_logger (WandbLogger): WandbLogger object.
+    """
+    if opt.get('wandb') is not None and opt['wandb'].get('use_wandb', False):
+        return WandbLogger(opt)
+    else:
+        return None
 
 
 def get_root_logger(logger_name='root_logger', log_file=None, log_level=logging.INFO):
