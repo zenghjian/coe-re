@@ -277,16 +277,27 @@ class SingleTopKidsDataset(SingleShapeDataset):
 
 
 class PairShapeDataset(Dataset):
-    def __init__(self, dataset):
+    def __init__(self, dataset, exclude_self_pairs=True, symmetric=True):
         """
         Pair Shape Dataset
 
         Args:
             dataset (SingleShapeDataset): single shape dataset
+            exclude_self_pairs (bool): Whether to exclude pairs where a shape is paired with itself
+            symmetric (bool): If True, only include one ordering of each pair (i,j) where i < j
         """
         assert isinstance(dataset, SingleShapeDataset), f'Invalid input data type of dataset: {type(dataset)}'
         self.dataset = dataset
-        self.combinations = list(product(range(len(dataset)), repeat=2))
+        
+        if symmetric and exclude_self_pairs:
+            # Only include unique unordered pairs (i,j) where i < j
+            self.combinations = [(i, j) for i in range(len(dataset)) for j in range(i+1, len(dataset))]
+        elif exclude_self_pairs:
+            # Include both orderings but exclude self-pairs
+            self.combinations = [(i, j) for i in range(len(dataset)) for j in range(len(dataset)) if i != j]
+        else:
+            # Include all possible pairs including self-pairs
+            self.combinations = list(product(range(len(dataset)), repeat=2))
 
     def __getitem__(self, index):
         # get index

@@ -258,7 +258,7 @@ class DiffusionNet(nn.Module):
                  last_activation=None,
                  mlp_hidden_channels=None,
                  output_at='vertices',
-                 dropout=True,
+                 dropout=False,
                  with_gradient_features=True,
                  with_gradient_rotations=True,
                  diffusion_method='spectral',

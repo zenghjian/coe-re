@@ -40,7 +40,7 @@ class WandbLogger:
             resume=wandb_resume,
             tags=wandb_tags,
             config=opt,
-            dir=os.path.join(opt['path']['experiments_root'], 'wandb')
+            dir=opt['path']['experiments_root']
         )
         
         # Set up environment
@@ -57,6 +57,11 @@ class WandbLogger:
         """
         # Remove epoch, iter, etc. from log_dict
         clean_log_dict = log_dict.copy()
+        
+        if 'l_total' not in clean_log_dict and any(k.startswith('l_') for k in clean_log_dict):
+            total_loss = sum(v for k, v in clean_log_dict.items() if k.startswith('l_') and k != 'l_total')
+            clean_log_dict['l_total'] = total_loss        
+            
         for k in ['epoch', 'iter', 'lrs', 'time', 'data_time']:
             if k in clean_log_dict:
                 clean_log_dict.pop(k)

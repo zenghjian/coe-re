@@ -65,8 +65,8 @@ class CoeModel(BaseModel):
             descriptors_y = data_y['descriptor']
         else:
             # Compute WKS descriptors if not provided
-            descriptors_x = compute_hks_autoscale(eVals_x, eVecs_x, count=16)
-            descriptors_y = compute_hks_autoscale(eVals_y, eVecs_y, count=16)
+            descriptors_x = compute_hks_autoscale(eVals_x, eVecs_x, count=512)
+            descriptors_y = compute_hks_autoscale(eVals_y, eVecs_y, count=512)
         
         descriptors_x = pad_data(descriptors_x, max_verts)
         descriptors_y = pad_data(descriptors_y, max_verts)

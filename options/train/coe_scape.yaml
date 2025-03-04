@@ -1,9 +1,9 @@
 # general setting
-name: coe_scape
+name: coe_scape_same
 backend: dp # DataParallel
 type: CoeModel
 num_gpu: auto
-manual_seed: 1234
+manual_seed: 12121
 attention: true
 
 # wandb configuration
@@ -67,7 +67,7 @@ train:
   optims:
     feature_extractor:
       type: Adam
-      lr: 1.0e-3
+      lr: 1.0e-2
       amsgrad: true
   schedulers:
     feature_extractor:
@@ -93,5 +93,5 @@ val:
 
 # log setting
 logger:
-  print_freq: 20
+  print_freq: 6
   save_checkpoint_freq: 4000
