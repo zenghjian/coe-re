@@ -16,40 +16,40 @@ datasets:
     name: ScapeTrain
     type: PairScapeDataset
     phase: train
-    data_root: ../data/SCAPE_r
+    data_root: ../data/SCAPE_r_single
     return_evecs: True
     return_faces: True
-    num_evecs: 200
+    num_evecs: 80
     return_corr: False
     return_dist: False
   test_dataset:
     name: ScapeTest
     type: PairScapeDataset
     phase: test
-    data_root: ../data/SCAPE_r
+    data_root: ../data/SCAPE_r_single
     return_evecs: True
     return_faces: True
-    num_evecs: 200
+    num_evecs: 80
     return_corr: True
     return_dist: True
   # setting for train dataset
   batch_size: 1
-  num_worker: 16
+  num_worker: 4
 
 # network setting
 networks:
   feature_extractor:
     type: DiffusionNet
-    in_channels: 128
+    in_channels: 3
     out_channels: 80
     hidden_channels: 128
     n_block: 4
-    input_type: wks
+    input_type: xyz
   attention:
     type: CrossAttentionRefinementNet
     n_in: 80
     num_head: 4
-    gnn_dim: 80
+    gnn_dim: 128
     n_layers: 1
 
 # training setting

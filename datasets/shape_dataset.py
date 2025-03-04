@@ -169,23 +169,32 @@ class SingleScapeDataset(SingleShapeDataset):
                                                  return_evecs, num_evecs,
                                                  return_corr, return_dist)
         assert phase in ['train', 'test', 'full'], f'Invalid phase {phase}, only "train" or "test" or "full"'
-        assert len(self) == 71, f'FAUST dataset should contain 71 human body shapes, but get {len(self)}.'
-        if phase == 'train':
-            if self.off_files:
-                self.off_files = self.off_files[:51]
-            if self.corr_files:
-                self.corr_files = self.corr_files[:51]
-            if self.dist_files:
-                self.dist_files = self.dist_files[:51]
-            self._size = 51
-        elif phase == 'test':
-            if self.off_files:
-                self.off_files = self.off_files[51:]
-            if self.corr_files:
-                self.corr_files = self.corr_files[51:]
-            if self.dist_files:
-                self.dist_files = self.dist_files[51:]
-            self._size = 20
+        # assert len(self) == 71, f'FAUST dataset should contain 71 human body shapes, but get {len(self)}.'
+        # if phase == 'train':
+        #     if self.off_files:
+        #         self.off_files = self.off_files[:51]
+        #     if self.corr_files:
+        #         self.corr_files = self.corr_files[:51]
+        #     if self.dist_files:
+        #         self.dist_files = self.dist_files[:51]
+        #     self._size = 51
+        # elif phase == 'test':
+        #     if self.off_files:
+        #         self.off_files = self.off_files[51:]
+        #     if self.corr_files:
+        #         self.corr_files = self.corr_files[51:]
+        #     if self.dist_files:
+        #         self.dist_files = self.dist_files[51:]
+        #     self._size = 20
+        
+        # validation experiment
+        if self.off_files:
+            self.off_files = self.off_files
+        if self.corr_files:
+            self.corr_files = self.corr_files
+        if self.dist_files:
+            self.dist_files = self.dist_files
+        self._size = len(self.off_files)
 
 
 @DATASET_REGISTRY.register()

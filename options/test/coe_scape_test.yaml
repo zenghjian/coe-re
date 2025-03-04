@@ -11,7 +11,7 @@ attention: true
 
 # path
 path:
-  resume_state: checkpoints/coe_scape.pth
+  resume_state: experiments/coe_scape/models/4000.pth
   resume: false
 
 # datasets
@@ -20,10 +20,10 @@ datasets:
     name: ScapeVal
     type: PairScapeDataset
     phase: test
-    data_root: ../data/SCAPE_r/
+    data_root: ../data/SCAPE_r_single
     return_evecs: true
     return_faces: true
-    num_evecs: 200
+    num_evecs: 80
     return_corr: true
     return_dist: true
 
@@ -31,16 +31,16 @@ datasets:
 networks:
   feature_extractor:
     type: DiffusionNet
-    in_channels: 128
+    in_channels: 3
     out_channels: 80
     hidden_channels: 128
     n_block: 4
-    input_type: wks
+    input_type: xyz
   attention:
     type: CrossAttentionRefinementNet
     n_in: 80
     num_head: 4
-    gnn_dim: 80
+    gnn_dim: 128
     n_layers: 1
 
 # validation setting

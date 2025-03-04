@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # parse arguments
     parser = ArgumentParser('Preprocess .off files')
     parser.add_argument('--data_root', required=True, help='data root contains /off sub-folder.')
-    parser.add_argument('--n_eig', type=int, default=200, help='number of eigenvectors/values to compute.')
+    parser.add_argument('--n_eig', type=int, default=80, help='number of eigenvectors/values to compute.')
     parser.add_argument('--no_eig', action='store_true', help='no laplacian eigen-decomposition')
     parser.add_argument('--no_dist', action='store_true', help='no geodesic matrix.')
     parser.add_argument('--no_normalize', action='store_true', help='no normalization of face area.')
